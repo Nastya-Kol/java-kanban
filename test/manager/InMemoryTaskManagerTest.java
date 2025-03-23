@@ -1,10 +1,8 @@
-package test;
+package manager;
 
-import manager.InMemoryTaskManager;
 import model.Task;
 import model.Epic;
 import model.Subtask;
-import manager.TaskManager;
 
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
@@ -79,10 +77,9 @@ public class InMemoryTaskManagerTest {
     }
 
     @Test
-    void findNotExistentTask(){
+    void findNotExistentTask() {
         Task task = taskManager.getTaskById(34);
 
         Assertions.assertNull(task, "Задача не существует, должна быть null");
     }
-
 }

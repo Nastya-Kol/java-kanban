@@ -27,13 +27,13 @@ public interface TaskManager {
     void updateSubtasks(Subtask subtask);
 
     //получение всех задач
-    ArrayList<Task> getTasks();
+    List<Task> getTasks();
 
     //получение всех подзадач
-    ArrayList<Subtask> getSubtasks();
+    List<Subtask> getSubtasks();
 
     //получение всех эпиков
-    ArrayList<Epic> getEpics();
+    List<Epic> getEpics();
 
     //получение задачи по id
     Task getTaskById(int taskId);
@@ -62,7 +62,7 @@ public interface TaskManager {
     //удаление подзадачи по id
     void removeSubtasksById(int subtaskId);
 
-    ArrayList<Subtask> getAllSubtaskByEpic(int epicId);
+    List<Subtask> getAllSubtaskByEpic(int epicId);
 
     List<Task> getHistory();
 }

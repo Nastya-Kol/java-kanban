@@ -245,8 +245,9 @@ public class InMemoryTaskManager implements TaskManager {
         }
         return allSubtasks;
     }
+
     @Override
-    public List<Task> getHistory(){
+    public List<Task> getHistory() {
         return historyManager.getHistory();
     }
 }

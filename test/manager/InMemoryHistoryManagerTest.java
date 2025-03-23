@@ -1,7 +1,5 @@
-package test;
+package manager;
 
-import manager.InMemoryHistoryManager;
-import manager.InMemoryTaskManager;
 import model.Task;
 import org.junit.Test;
 
