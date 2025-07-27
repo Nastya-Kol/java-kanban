@@ -4,6 +4,7 @@ import model.Task;
 import model.Epic;
 import model.Subtask;
 
+import model.TaskStatus;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
@@ -81,5 +82,35 @@ public class InMemoryTaskManagerTest {
         Task task = taskManager.getTaskById(34);
 
         Assertions.assertNull(task, "Задача не существует, должна быть null");
+    }
+
+    @Test
+    void shouldClearHistoryWhenDeleteAllTasks() {
+        Task task1 = new Task("Task1", "model.Task discription#1", TaskStatus.NEW);
+        Task task2 = new Task("Task1", "model.Task discription#1", TaskStatus.NEW);
+        int id1 = taskManager.saveTasks(task1);
+        int id2 = taskManager.saveTasks(task2);
+
+        taskManager.getTaskById(id1);
+        taskManager.getTaskById(id2);
+
+        taskManager.deleteAllTasks();
+
+        assertTrue(taskManager.getHistory().isEmpty());
+    }
+
+    @Test
+    void shouldClearEpicsAndSubtasksHistoryWhenDeleteAllEpics() {
+        Epic epic = new Epic("model.Epic #1", "model.Epic discription#1", TaskStatus.NEW);
+        int epicId = taskManager.saveEpics(epic);
+        Subtask subtask = new Subtask("model.Subtask #1", "model.Task discription #1", TaskStatus.NEW, epicId);
+        int subId = taskManager.saveSubtasks(subtask);
+
+        taskManager.getEpicById(epicId);
+        taskManager.getSubtaskById(subId);
+
+        taskManager.deleteAllEpics();
+
+        assertTrue(taskManager.getHistory().isEmpty());
     }
 }

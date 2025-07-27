@@ -11,7 +11,7 @@ import static model.TaskStatus.NEW;
 import static org.junit.Assert.*;
 
 public class InMemoryHistoryManagerTest {
-    InMemoryTaskManager taskManager = new InMemoryTaskManager();
+
     InMemoryHistoryManager historyManager = new InMemoryHistoryManager();
 
     @BeforeEach
@@ -27,9 +27,6 @@ public class InMemoryHistoryManagerTest {
         assertNotNull("История не пустая.", history);
         assertEquals("История не пустая.", 1, history.size());
     }
-
-
-
 
     @Test
     public void shouldAddTasksToHistory() {
