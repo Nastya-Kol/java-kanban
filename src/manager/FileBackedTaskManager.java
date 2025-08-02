@@ -4,6 +4,7 @@ import model.Task;
 import model.Subtask;
 import model.Epic;
 import model.TaskStatus;
+import model.TaskType;
 
 import java.io.File;
 import java.io.*;
@@ -47,13 +48,13 @@ public class FileBackedTaskManager extends InMemoryTaskManager {
 
     // Преобразование задачи в строку
     private String toString(Task task) {
-        String type;
+        TaskType type;
         if (task instanceof Epic) {
-            type = "EPIC";
+            type = TaskType.EPIC;
         } else if (task instanceof Subtask) {
-            type = "SUBTASK";
+            type = TaskType.SUBTASK;
         } else {
-            type = "TASK";
+            type = TaskType.TASK;
         }
 
         String epicId = "";
@@ -63,7 +64,7 @@ public class FileBackedTaskManager extends InMemoryTaskManager {
 
         return String.join(",",
                 String.valueOf(task.getId()),
-                type,
+                type.name(),
                 task.getName(),
                 task.getStatus().name(),
                 task.getDescription(),
@@ -112,29 +113,29 @@ public class FileBackedTaskManager extends InMemoryTaskManager {
 
         try {
             int id = Integer.parseInt(parts[0].trim());
-            String typeStr = parts[1].trim();
+            TaskType type = TaskType.valueOf(parts[1].trim());
             String name = parts[2].trim();
             TaskStatus status = TaskStatus.valueOf(parts[3].trim());
             String description = parts[4].trim();
             String epicIdStr = parts[5].trim();
 
-            switch (typeStr) {
-                case "TASK":
+            switch (type) {
+                case TASK:
                     return new Task(id, name, description, status);
-                case "EPIC":
+                case EPIC:
                     return new Epic(id, name, description, status);
-                case "SUBTASK":
-
+                case SUBTASK:
                     int epicId = Integer.parseInt(epicIdStr);
                     return new Subtask(id, name, description, status, epicId);
                 default:
-                    return null;
+                    throw new IllegalStateException("Unexpected value: " + type);
             }
         } catch (NumberFormatException e) {
             throw new ManagerSaveException("Ошибка формата числа в строке: " + value, e);
         } catch (IllegalArgumentException e) {
             throw new ManagerSaveException("Ошибка формата данных в строке: " + value, e);
         }
+
     }
 
     @Override
