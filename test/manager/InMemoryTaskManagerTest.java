@@ -13,8 +13,13 @@ import static org.junit.Assert.*;
 
 import java.util.List;
 
-public class InMemoryTaskManagerTest {
+public class InMemoryTaskManagerTest extends TaskManagerTest<InMemoryTaskManager>{
     TaskManager taskManager = new InMemoryTaskManager();
+
+    @Override
+    protected InMemoryTaskManager createTaskManager() {
+        return new InMemoryTaskManager();
+    }
 
     @Test
     void addNewTask() {

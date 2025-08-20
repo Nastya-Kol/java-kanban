@@ -9,10 +9,13 @@ import model.TaskType;
 import java.io.File;
 import java.io.*;
 import java.nio.file.Files;
+import java.time.Duration;
+import java.time.LocalDateTime;
+import java.util.stream.Stream;
 
 public class FileBackedTaskManager extends InMemoryTaskManager {
     private final File file;
-    private static final String HEADER = "id,type,name,status,description,epic";
+    private static final String HEADER = "id,type,name,status,description,epic,duration,endTime";
     int generateCodeID = 0;
 
     public FileBackedTaskManager(File file) {
@@ -26,23 +29,24 @@ public class FileBackedTaskManager extends InMemoryTaskManager {
             writer.write(HEADER);
             writer.newLine();
 
-            // Сохраняем все задачи
-            for (Task task : getTasks()) {
-                writer.write(toString(task));
-                writer.newLine();
-            }
+            // Создаем потоки строк для каждой коллекции
+            Stream<String> taskStream = tasks.values().stream()
+                    .map(this::toString);
+            Stream<String> epicStream = epics.values().stream()
+                    .map(this::toString);
+            Stream<String> subtaskStream = subTasks.values().stream()
+                    .map(this::toString);
 
-            // Сохраняем все эпики
-            for (Epic epic : getEpics()) {
-                writer.write(toString(epic));
-                writer.newLine();
-            }
-
-            // Сохраняем все подзадачи
-            for (Subtask subtask : getSubtasks()) {
-                writer.write(toString(subtask));
-                writer.newLine();
-            }
+            // Объединяем все потоки и записываем в файл
+            Stream.concat(Stream.concat(taskStream, epicStream), subtaskStream)
+                    .forEach(line -> {
+                        try {
+                            writer.write(line);
+                            writer.newLine();
+                        } catch (IOException e) {
+                            throw new ManagerSaveException("Ошибка записи задачи в файл", e);
+                        }
+                    });
         } catch (IOException e) {
             throw new ManagerSaveException("Ошибка сохранения в файл", e);
         }
@@ -64,13 +68,38 @@ public class FileBackedTaskManager extends InMemoryTaskManager {
             epicId = String.valueOf(((Subtask) task).getEpic());
         }
 
+        String startTime = "";
+        if (task.getStartTime() != null) {
+            startTime = task.getStartTime().toString();
+        }
+
+        String duration = "";
+        if (task.getDuration() != null) {
+            duration = String.valueOf(task.getDuration().toMinutes());
+        }
+
+        String endTime = "";
+        if (task instanceof Epic) {
+            Epic epic = (Epic) task;
+            if (epic.getEndTime() != null) {
+                endTime = epic.getEndTime().toString();
+            }
+        } else {
+            if (task.getEndTime() != null) {
+                endTime = task.getEndTime().toString();
+            }
+        }
+
         return String.join(",",
                 String.valueOf(task.getId()),
                 type.name(),
                 task.getName(),
                 task.getStatus().name(),
                 task.getDescription(),
-                epicId
+                epicId,
+                startTime,
+                duration,
+                endTime
         );
     }
 
@@ -111,7 +140,6 @@ public class FileBackedTaskManager extends InMemoryTaskManager {
         } catch (IOException e) {
             throw new ManagerSaveException("Ошибка загрузки из файла", e);
         }
-
         return manager;
     }
 
@@ -121,30 +149,55 @@ public class FileBackedTaskManager extends InMemoryTaskManager {
             return null;
         }
         String[] parts = value.split(",", -1); // -1 сохраняет пустые значения
-        if (parts.length < 6) {
+        if (parts.length < 9) {
             return null;
         }
 
         try {
             int id = Integer.parseInt(parts[0].trim());
-
             TaskType type = TaskType.valueOf(parts[1].trim());
             String name = parts[2].trim();
             TaskStatus status = TaskStatus.valueOf(parts[3].trim());
             String description = parts[4].trim();
             String epicIdStr = parts[5].trim();
+            String startTimeStr = parts[6].trim();
+            String durationStr = parts[7].trim();
+            String endTimeStr = parts[8].trim();
 
+            LocalDateTime startTime = null;
+            if (!startTimeStr.isEmpty()) {
+                startTime = LocalDateTime.parse(startTimeStr);
+            }
+
+            Duration duration = null;
+            if (!durationStr.isEmpty()) {
+                duration = Duration.ofMinutes(Long.parseLong(durationStr));
+            }
+
+            LocalDateTime endTime = null;
+            if (!endTimeStr.isEmpty()) {
+                endTime = LocalDateTime.parse(endTimeStr);
+            }
 
             switch (type) {
                 case TASK:
-                    return new Task(id, name, description, status);
+                    Task task = new Task(id, name, description, status);
+                    task.setStartTime(startTime);
+                    task.setDuration(duration);
+                    return task;
 
                 case EPIC:
-                    return new Epic(id, name, description, status);
+                    Epic epic = new Epic(id, name, description, status);
+                    epic.setStartTime(startTime);
+                    epic.setEndTime(endTime);
+                    return epic;
 
                 case SUBTASK:
                     int epicId = Integer.parseInt(epicIdStr);
-                    return new Subtask(id, name, description, status, epicId);
+                    Subtask subtask = new Subtask(id, name, description, status, epicId);
+                    subtask.setStartTime(startTime);
+                    subtask.setDuration(duration);
+                    return subtask;
                 default:
 
                     throw new IllegalStateException("Unexpected value: " + type);
@@ -154,7 +207,6 @@ public class FileBackedTaskManager extends InMemoryTaskManager {
         } catch (IllegalArgumentException e) {
             throw new ManagerSaveException("Ошибка формата данных в строке: " + value, e);
         }
-
     }
 
     public void setLastId(int lastId) {
