@@ -62,8 +62,8 @@ public class Epic extends Task {
                 ", description='" + description + '\'' +
                 ", status=" + status +
                 ", duration=" + duration +
-                ", startTime=" + getStartTime() +
-                ", endTime=" + getEndTime() +
+                ", startTime=" + startTime +
+                ", endTime=" + endTime +
                 '}';
     }
 }

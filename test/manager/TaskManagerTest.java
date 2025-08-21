@@ -1,6 +1,7 @@
 package manager;
 
 import model.*;
+import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -8,25 +9,35 @@ import java.time.Duration;
 import java.time.LocalDateTime;
 import java.util.List;
 
+import static org.junit.Assert.assertTrue;
 import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.Assert.*;
 
 public abstract class TaskManagerTest<T extends TaskManager> {
     protected T taskManager;
     protected Epic epic;
+    protected Epic epic2;
     protected Subtask subtask1;
     protected Subtask subtask2;
     protected Task task;
+    protected Task task2;
 
     protected abstract T createTaskManager();
 
     @BeforeEach
     void setUp() {
+
         taskManager = createTaskManager();
         LocalDateTime baseTime = LocalDateTime.of(2025, 1, 1, 10, 0);
+
         epic = new Epic("Test Epic Name", "Test Epic Description", TaskStatus.NEW, Duration.ofMinutes(70), baseTime);
+        Epic epic2 = new Epic("Test Epic2 Name", "Test Epic2 Description", TaskStatus.NEW, Duration.ofMinutes(30), baseTime.plusHours(5));
         int epicId = taskManager.saveEpics(epic);
+
         task = new Task("Test Task", "Test Description", TaskStatus.NEW,
                 Duration.ofMinutes(5), baseTime.plusHours(3));
+        task2 = new Task("Test Task", "Test Description", TaskStatus.NEW,
+                Duration.ofMinutes(5), baseTime.plusHours(6));
 
         epic = taskManager.getEpicById(epicId);
 
@@ -141,5 +152,92 @@ public abstract class TaskManagerTest<T extends TaskManager> {
         List<Task> prioritized = taskManager.getPrioritizedTasks();
         assertEquals(earlyTask.getId(), prioritized.get(0).getId(),
                 "Задачи должны быть отсортированы по времени начала");
+    }
+
+    @Test
+    void addNewTask() {
+
+        final int taskId = taskManager.saveTasks(task);
+        final int taskId2 = taskManager.saveTasks(task2);
+
+        final Task savedTask = taskManager.getTaskById(taskId);
+        final Task savedTask2 = taskManager.getTaskById(taskId2);
+
+        assertNotNull("Задача не найдена.", savedTask);
+        assertEquals("Задачи не совпадают.", task, savedTask);
+
+        final List<Task> tasks = taskManager.getTasks();
+
+        assertNotNull("Задачи не возвращаются.", tasks);
+        assertEquals("Неверное количество задач.", 2, tasks.size());
+        assertEquals("Задачи не совпадают.", task, tasks.get(0));
+    }
+
+    @Test
+    void addNewEpic() {
+
+        final int epicId = taskManager.saveEpics(epic);
+        final Epic savedEpic = taskManager.getEpicById(epicId);
+
+        assertNotNull("Эпик не найден.", savedEpic);
+        assertEquals("Эпики  не совпадают.", epic, savedEpic);
+
+        final List<Epic> epics = taskManager.getEpics();
+
+        assertNotNull("Эпики не возвращаются.", epics);
+        assertEquals("Неверное количество Эпиков.", 2, epics.size());
+        assertEquals("Эпики не совпадают.", epic, epics.get(0));
+    }
+
+    @Test
+    void addNewSubtask() {
+
+        final int subtaskId = taskManager.saveSubtasks(subtask1);
+        final int subtaskId2 = taskManager.saveSubtasks(subtask2);
+
+        final Subtask savedSubtask = taskManager.getSubtaskById(subtaskId);
+        final Subtask savedSubtask2 = taskManager.getSubtaskById(subtaskId2);
+
+        assertNotNull("Подзадача не найдена.", savedSubtask);
+        assertEquals("Подзадачи не совпадают.", subtask1, savedSubtask);
+
+        final List<Subtask> subtasks = taskManager.getSubtasks();
+
+        assertNotNull("Подзадачи не возвращаются.", subtasks);
+        assertEquals("Неверное количество Подзадач.", 2, subtasks.size());
+        assertEquals("Подзадачи не совпадают.", subtask1, subtasks.get(0));
+    }
+
+    @Test
+    void findNotExistentTask() {
+        Task task = taskManager.getTaskById(34);
+
+        Assertions.assertNull(task, "Задача не существует, должна быть null");
+    }
+
+    @Test
+    void shouldClearHistoryWhenDeleteAllTasks() {
+        TaskManager taskmanager = new InMemoryTaskManager();
+        int id1 = taskmanager.saveTasks(task);
+        int id2 = taskmanager.saveTasks(task2);
+
+        taskmanager.getTaskById(id1);
+        taskmanager.getTaskById(id2);
+        taskmanager.deleteAllTasks();
+
+        assertTrue(taskmanager.getHistory().isEmpty());
+    }
+
+    @Test
+    void shouldClearEpicsAndSubtasksHistoryWhenDeleteAllEpics() {
+        TaskManager taskmanager = new InMemoryTaskManager();
+        int epicId = taskmanager.saveEpics(epic);
+        int subId = taskmanager.saveSubtasks(subtask1);
+
+        taskmanager.getEpicById(epicId);
+        taskmanager.getSubtaskById(subId);
+        taskmanager.deleteAllEpics();
+
+        assertTrue(taskmanager.getHistory().isEmpty());
     }
 }

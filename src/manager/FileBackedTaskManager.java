@@ -79,15 +79,8 @@ public class FileBackedTaskManager extends InMemoryTaskManager {
         }
 
         String endTime = "";
-        if (task instanceof Epic) {
-            Epic epic = (Epic) task;
-            if (epic.getEndTime() != null) {
-                endTime = epic.getEndTime().toString();
-            }
-        } else {
-            if (task.getEndTime() != null) {
-                endTime = task.getEndTime().toString();
-            }
+        if (task.getEndTime() != null) {
+            endTime = task.getEndTime().toString();
         }
 
         return String.join(",",
@@ -121,6 +114,7 @@ public class FileBackedTaskManager extends InMemoryTaskManager {
                     }
                     if (task instanceof Epic) {
                         manager.epics.put(task.getId(), (Epic) task);
+
                     } else if (task instanceof Subtask) {
                         Subtask subtask = (Subtask) task;
                         manager.subTasks.put(subtask.getId(), subtask);
@@ -129,9 +123,10 @@ public class FileBackedTaskManager extends InMemoryTaskManager {
                         if (epic != null) {
                             epic.getSubTaskIds().add(subtask.getId());
                         }
-
+                        manager.prioritizedTasks.add(subtask);
                     } else {
                         manager.tasks.put(task.getId(), task);
+                        manager.prioritizedTasks.add(task);
                     }
                 }
             }
@@ -189,6 +184,7 @@ public class FileBackedTaskManager extends InMemoryTaskManager {
                 case EPIC:
                     Epic epic = new Epic(id, name, description, status);
                     epic.setStartTime(startTime);
+                    epic.setDuration(duration);
                     epic.setEndTime(endTime);
                     return epic;
 

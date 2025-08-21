@@ -14,6 +14,7 @@ import model.Subtask;
 import model.TaskStatus;
 
 import java.io.*;
+import java.util.List;
 
 public class FileBackedTaskManagerTest extends TaskManagerTest<FileBackedTaskManager> {
 
@@ -81,6 +82,9 @@ public class FileBackedTaskManagerTest extends TaskManagerTest<FileBackedTaskMan
         assertEquals(task.getName(), loadedTask.getName(), "Название задачи не совпадает");
         assertEquals(task.getDescription(), loadedTask.getDescription(), "Описание задачи не совпадает");
         assertEquals(task.getStatus(), loadedTask.getStatus(), "Статус задачи не совпадает");
+        assertEquals(task.getStartTime(), loadedTask.getStartTime(), "Время начала задачи не совпадает");
+        assertEquals(task.getDuration(), loadedTask.getDuration(), "Продолжительность задачи не совпадает");
+        assertEquals(task.getEndTime(), loadedTask.getEndTime(), "Время окончания задачи не совпадает");
 
         // Проверяем эпики
         Epic loadedEpic = loadedManager.getEpicById(epicId);
@@ -89,6 +93,9 @@ public class FileBackedTaskManagerTest extends TaskManagerTest<FileBackedTaskMan
         assertEquals(epic.getName(), loadedEpic.getName(), "Название эпика не совпадает");
         assertEquals(epic.getDescription(), loadedEpic.getDescription(), "Описание эпика не совпадает");
         assertEquals(epic.getStatus(), loadedEpic.getStatus(), "Статус эпика не совпадает");
+        assertEquals(epic.getStartTime(), loadedEpic.getStartTime(), "Время начала эпика не совпадает");
+        assertEquals(epic.getDuration(), loadedEpic.getDuration(), "Продолжительность эпика не совпадает");
+        assertEquals(epic.getEndTime(), loadedEpic.getEndTime(), "Время окончания эпика не совпадает");
 
         // Проверяем подзадачи
         Subtask loadedSubtask1 = loadedManager.getSubtaskById(subId1);
@@ -98,6 +105,9 @@ public class FileBackedTaskManagerTest extends TaskManagerTest<FileBackedTaskMan
         assertEquals(subtask1.getDescription(), loadedSubtask1.getDescription(), "Описание подзадачи 1 не совпадает");
         assertEquals(subtask1.getStatus(), loadedSubtask1.getStatus(), "Статус подзадачи 1 не совпадает");
         assertEquals(subtask1.getEpic(), loadedSubtask1.getEpic(), "EpicID подзадачи 1 не совпадает");
+        assertEquals(subtask1.getStartTime(), loadedSubtask1.getStartTime(), "Время начала подзадачи 1 не совпадает");
+        assertEquals(subtask1.getDuration(), loadedSubtask1.getDuration(), "Продолжительность подзадачи 1 не совпадает");
+        assertEquals(subtask1.getEndTime(), loadedSubtask1.getEndTime(), "Время окончания подзадачи 1 не совпадает");
 
         Subtask loadedSubtask2 = loadedManager.getSubtaskById(subId2);
         assertNotNull(loadedSubtask2, "Подзадача 2 не загрузилась");
@@ -106,6 +116,9 @@ public class FileBackedTaskManagerTest extends TaskManagerTest<FileBackedTaskMan
         assertEquals(subtask2.getDescription(), loadedSubtask2.getDescription(), "Описание подзадачи 2 не совпадает");
         assertEquals(subtask2.getStatus(), loadedSubtask2.getStatus(), "Статус подзадачи 2 не совпадает");
         assertEquals(subtask2.getEpic(), loadedSubtask2.getEpic(), "EpicID подзадачи 2 не совпадает");
+        assertEquals(subtask2.getStartTime(), loadedSubtask2.getStartTime(), "Время начала подзадачи 2 не совпадает");
+        assertEquals(subtask2.getDuration(), loadedSubtask2.getDuration(), "Продолжительность подзадачи 2 не совпадает");
+        assertEquals(subtask2.getEndTime(), loadedSubtask2.getEndTime(), "Время окончания подзадачи 2 не совпадает");
 
         // Проверяем связи эпиков и подзадач
         assertEquals(2, loadedEpic.getSubTaskIds().size(), "Неверное количество подзадач у эпика");
@@ -118,5 +131,27 @@ public class FileBackedTaskManagerTest extends TaskManagerTest<FileBackedTaskMan
         // Проверяем общее количество задач
         assertEquals(1, loadedManager.getTasks().size(), "Неверное количество задач");
         assertEquals(1, loadedManager.getEpics().size(), "Неверное количество эпиков");
+
+        // Проверяем отсортированный список prioritizedTasks
+        List<Task> loadedPrioritized = loadedManager.getPrioritizedTasks();
+        List<Task> originalPrioritized = manager.getPrioritizedTasks();
+
+        assertEquals(originalPrioritized.size(), loadedPrioritized.size(),
+                "Размер отсортированного списка не совпадает");
+
+        // Проверяем, что список правильно отсортирован по времени начала
+        for (int i = 0; i < loadedPrioritized.size() - 1; i++) {
+            assertTrue(loadedPrioritized.get(i).getStartTime()
+                            .isBefore(loadedPrioritized.get(i + 1).getStartTime()),
+                    "Список не отсортирован по времени начала");
+        }
+
+        // Проверяем, что все задачи присутствуют в отсортированном списке
+        assertTrue(loadedPrioritized.contains(loadedTask), "Задача отсутствует в отсортированном списке");
+        assertTrue(loadedPrioritized.contains(loadedSubtask1), "Подзадача 1 отсутствует в отсортированном списке");
+        assertTrue(loadedPrioritized.contains(loadedSubtask2), "Подзадача 2 отсутствует в отсортированном списке");
+
+        // Проверяем, что эпик НЕ в отсортированном списке
+        assertFalse(loadedPrioritized.contains(loadedEpic), "Эпик не должен быть в отсортированном списке");
     }
 }

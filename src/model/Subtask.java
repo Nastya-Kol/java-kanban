@@ -40,7 +40,7 @@ public class Subtask extends Task {
                 ", description='" + description + '\'' +
                 ", status=" + status +
                 ", duration=" + duration +
-                ", startTime=" + getStartTime() +
+                ", startTime=" + startTime +
                 ", endTime=" + getEndTime() +
                 '}';
     }
