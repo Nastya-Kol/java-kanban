@@ -17,7 +17,6 @@ import java.util.stream.Stream;
 public class FileBackedTaskManager extends InMemoryTaskManager {
     private final File file;
     private static final String HEADER = "id,type,name,status,description,epic,duration,endTime";
-    int generateCodeID = 0;
 
     public FileBackedTaskManager(File file) {
         this.file = file;

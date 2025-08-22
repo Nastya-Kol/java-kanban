@@ -24,7 +24,7 @@ public class InMemoryTaskManager implements TaskManager {
     );
 
     private final HistoryManager historyManager = Managers.getDefaultHistoryMemory();
-    private int generateCodeID = 0;
+    protected int generateCodeID = 0;
 
     protected int generateCodeID() {
         return ++generateCodeID;
