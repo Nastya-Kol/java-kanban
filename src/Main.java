@@ -5,6 +5,9 @@ import model.Task;
 import model.TaskStatus;
 import manager.TaskManager;
 
+import java.time.Duration;
+import java.time.LocalDateTime;
+
 public class Main {
 
     public static void main(String[] args) {
@@ -12,14 +15,20 @@ public class Main {
 
         InMemoryTaskManager manager = new InMemoryTaskManager();
 
-        Task task1 = new Task("Task1", "model.Task discription#1", TaskStatus.NEW);
-        Task task2 = new Task("Task2", "model.Task discription#2", TaskStatus.IN_PROGRESS);
+        Task task1 = new Task("Task1", "model.Task discription#1", TaskStatus.NEW, Duration.ofHours(1),
+                LocalDateTime.of(2023, 1, 1, 12, 0));
+        Task task2 = new Task("Task2", "model.Task discription#2", TaskStatus.IN_PROGRESS, Duration.ofHours(1),
+                LocalDateTime.of(2023, 1, 1, 14, 0));
 
-        Epic epic1 = new Epic("model.Epic #1", "model.Epic discription#1", TaskStatus.NEW);
-        Epic epic2 = new Epic("model.Epic #2", "model.Epic discription#2", TaskStatus.NEW);
+        Epic epic1 = new Epic("model.Epic #1", "model.Epic discription#1", TaskStatus.NEW, Duration.ofHours(1),
+                LocalDateTime.of(2023, 1, 1, 16, 0));
+        Epic epic2 = new Epic("model.Epic #2", "model.Epic discription#2", TaskStatus.NEW, Duration.ofHours(1),
+                LocalDateTime.of(2023, 1, 1, 18, 0));
 
-        Subtask subtask1 = new Subtask("model.Subtask #1", "model.Task discription #1", TaskStatus.NEW, epic1.getId());
-        Subtask subtask2 = new Subtask("model.Subtask #2", "model.Task discription #2", TaskStatus.NEW, epic1.getId());
+        Subtask subtask1 = new Subtask("model.Subtask #1", "model.Task discription #1", TaskStatus.NEW, epic1.getId(), Duration.ofHours(1),
+                LocalDateTime.of(2023, 1, 1, 20, 0));
+        Subtask subtask2 = new Subtask("model.Subtask #2", "model.Task discription #2", TaskStatus.NEW, epic1.getId(), Duration.ofHours(1),
+                LocalDateTime.of(2023, 1, 1, 22, 0));
 
         manager.saveTasks(task1);
         manager.saveTasks(task2);
@@ -92,6 +101,4 @@ public class Main {
             System.out.println(task);
         }
     }
-
-
 }
