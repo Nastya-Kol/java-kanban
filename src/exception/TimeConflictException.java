@@ -1,4 +1,4 @@
-package manager;
+package exception;
 
 public class TimeConflictException extends RuntimeException {
     public TimeConflictException(String message) {

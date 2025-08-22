@@ -1,5 +1,6 @@
 package manager;
 
+import exception.ManagerSaveException;
 import model.Task;
 import model.Subtask;
 import model.Epic;
@@ -130,7 +131,8 @@ public class FileBackedTaskManager extends InMemoryTaskManager {
                     }
                 }
             }
-            manager.setLastId(maxId);
+            //manager.setLastId(maxId);
+            manager.generateCodeID = maxId;
 
         } catch (IOException e) {
             throw new ManagerSaveException("Ошибка загрузки из файла", e);
@@ -205,9 +207,9 @@ public class FileBackedTaskManager extends InMemoryTaskManager {
         }
     }
 
-    public void setLastId(int lastId) {
-        this.generateCodeID = lastId;
-    }
+//    public void setLastId(int lastId) {
+//        this.generateCodeID = lastId;
+//    }
 
     @Override
     public int saveTasks(Task task) {

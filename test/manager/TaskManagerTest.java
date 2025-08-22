@@ -1,5 +1,6 @@
 package manager;
 
+import exception.ManagerSaveException;
 import model.*;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
@@ -31,7 +32,7 @@ public abstract class TaskManagerTest<T extends TaskManager> {
         LocalDateTime baseTime = LocalDateTime.of(2025, 1, 1, 10, 0);
 
         epic = new Epic("Test Epic Name", "Test Epic Description", TaskStatus.NEW, Duration.ofMinutes(70), baseTime);
-        Epic epic2 = new Epic("Test Epic2 Name", "Test Epic2 Description", TaskStatus.NEW, Duration.ofMinutes(30), baseTime.plusHours(5));
+        epic2 = new Epic("Test Epic2 Name", "Test Epic2 Description", TaskStatus.NEW, Duration.ofMinutes(30), baseTime.plusHours(5));
         int epicId = taskManager.saveEpics(epic);
 
         task = new Task("Test Task", "Test Description", TaskStatus.NEW,

@@ -1,5 +1,7 @@
 package manager;
 
+import exception.ManagerSaveException;
+import exception.TimeConflictException;
 import model.Task;
 import model.Subtask;
 import model.Epic;
@@ -24,7 +26,7 @@ public class InMemoryTaskManager implements TaskManager {
     private final HistoryManager historyManager = Managers.getDefaultHistoryMemory();
     private int generateCodeID = 0;
 
-    private int generateCodeID() {
+    protected int generateCodeID() {
         return ++generateCodeID;
     }
 
@@ -208,13 +210,9 @@ public class InMemoryTaskManager implements TaskManager {
     public void deleteAllTasks() {
         for (Task task : tasks.values()) {
             removeFromPrioritized(task);
-        }
-
-        for (int taskId : tasks.keySet()) {
-            historyManager.remove(taskId);
+            historyManager.remove(task.getId());
         }
         tasks.clear();
-
     }
 
     //удаление всех эпиков
@@ -222,6 +220,10 @@ public class InMemoryTaskManager implements TaskManager {
     public void deleteAllEpics() {
         for (Epic epic : epics.values()) {
             for (int subtaskId : epic.getSubTaskIds()) {
+                Subtask subtask = subTasks.get(subtaskId);
+                if (subtask != null) {
+                    removeFromPrioritized(subtask);
+                }
                 historyManager.remove(subtaskId);
             }
             historyManager.remove(epic.getId());
@@ -318,22 +320,6 @@ public class InMemoryTaskManager implements TaskManager {
     @Override
     public List<Task> getHistory() {
         return historyManager.getHistory();
-    }
-
-    private Duration epicDuration(Epic epic, HashMap<Integer, Subtask> subTasks) {
-        if (epic.getSubTaskIds().isEmpty()) {
-            return Duration.ZERO;
-        }
-
-        long totalMinutes = epic.getSubTaskIds().stream()
-                .map(subTasks::get)
-                .filter(Objects::nonNull)
-                .map(Subtask::getDuration)
-                .filter(Objects::nonNull)
-                .mapToLong(Duration::toMinutes)
-                .sum();
-
-        return Duration.ofMinutes(totalMinutes);
     }
 
     private void updateEpicTimes(int epicId) {
