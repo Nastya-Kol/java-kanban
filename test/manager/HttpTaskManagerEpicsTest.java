@@ -32,7 +32,7 @@ public class HttpTaskManagerEpicsTest extends HttpTaskManagerTasksTest {
                 .build();
 
         HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
-        assertEquals(200, response.statusCode());
+        assertEquals(201, response.statusCode());
 
         List<Epic> epicsFromManager = taskManager.getEpics();
         assertEquals(1, epicsFromManager.size());

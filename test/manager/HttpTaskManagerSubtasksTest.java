@@ -44,7 +44,7 @@ public class HttpTaskManagerSubtasksTest extends HttpTaskManagerTasksTest {
                 .build();
 
         HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
-        assertEquals(200, response.statusCode());
+        assertEquals(201, response.statusCode());
 
         List<Subtask> subtasksFromManager = taskManager.getSubtasks();
         assertEquals(1, subtasksFromManager.size());

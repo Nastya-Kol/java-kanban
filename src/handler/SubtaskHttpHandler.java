@@ -1,27 +1,18 @@
-package manager;
+package handler;
 
 import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
 import com.sun.net.httpserver.HttpExchange;
-import com.sun.net.httpserver.HttpHandler;
+import manager.TaskManager;
 import model.Subtask;
 import exception.TimeConflictException;
 import exception.ManagerSaveException;
 
 import java.io.IOException;
-import java.time.LocalDateTime;
-import java.time.Duration;
 
-public class SubtaskHttpHandler extends BaseHttpHandler implements HttpHandler {
-    private final TaskManager taskManager;
-    private final Gson gson;
+public class SubtaskHttpHandler extends BaseHttpHandler {
 
-    public SubtaskHttpHandler(TaskManager taskManager) {
-        this.taskManager = taskManager;
-        this.gson = new GsonBuilder()
-                .registerTypeAdapter(LocalDateTime.class, new LocalDateTimeAdapter())
-                .registerTypeAdapter(Duration.class, new DurationAdapter())
-                .create();
+    public SubtaskHttpHandler(TaskManager taskManager, Gson gson) {
+        super(taskManager, gson);
     }
 
     @Override
@@ -68,6 +59,11 @@ public class SubtaskHttpHandler extends BaseHttpHandler implements HttpHandler {
     private void handlePostRequest(HttpExchange exchange, String path) throws IOException {
         if (path.equals("/subtasks")) {
             String body = readRequestBody(exchange);
+            if (body == null || body.trim().isEmpty()) {
+
+                sendBadRequest(exchange, "Для создания подзадачи необходимо указать эпик");
+                return;
+            }
             Subtask subtask = gson.fromJson(body, Subtask.class);
 
             try {

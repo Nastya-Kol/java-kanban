@@ -34,7 +34,7 @@ public class HttpTaskManagerTasksTest {
     @BeforeEach
     public void setUp() {
 
-        gson = GsonBuilder.getGson();
+        gson = HttpTaskServer.getGson();
         try {
             taskServer = new HttpTaskServer(taskManager, gson);
         } catch (IOException e) {
@@ -68,7 +68,7 @@ public class HttpTaskManagerTasksTest {
         // вызываем рест, отвечающий за создание задач
         HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
         // проверяем код ответа
-        assertEquals(200, response.statusCode());
+        assertEquals(201, response.statusCode());
 
         // проверяем, что создалась одна задача с корректным именем
         List<Task> tasksFromManager = taskManager.getTasks();
