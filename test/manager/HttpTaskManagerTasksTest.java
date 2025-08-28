@@ -109,7 +109,7 @@ public class HttpTaskManagerTasksTest {
 
         Task[] tasks = gson.fromJson(response.body(), Task[].class);
         assertEquals(1, tasks.length);
-        assertEquals("Test Task", tasks[0].getName());
+        assertEquals("Test 2", tasks[0].getName());
     }
 
     @Test
@@ -127,6 +127,6 @@ public class HttpTaskManagerTasksTest {
 
         Task retrievedTask = gson.fromJson(response.body(), Task.class);
         assertEquals(taskId, retrievedTask.getId());
-        assertEquals("Test Task", retrievedTask.getName());
+        assertEquals("Test 2", retrievedTask.getName());
     }
 }
