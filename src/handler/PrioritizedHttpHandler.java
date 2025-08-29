@@ -1,6 +1,5 @@
 package handler;
 
-import com.google.gson.Gson;
 import com.sun.net.httpserver.HttpExchange;
 import manager.TaskManager;
 import model.Task;
@@ -10,8 +9,8 @@ import java.util.List;
 
 public class PrioritizedHttpHandler extends BaseHttpHandler {
 
-    public PrioritizedHttpHandler(TaskManager taskManager, Gson gson) {
-        super(taskManager, gson);
+    public PrioritizedHttpHandler(TaskManager taskManager) {
+        super(taskManager);
 
     }
 

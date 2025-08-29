@@ -1,21 +1,19 @@
 package handler;
 
-import com.google.gson.Gson;
 import com.sun.net.httpserver.HttpExchange;
 import manager.TaskManager;
 import model.Task;
 
 import exception.TimeConflictException;
 import exception.ManagerSaveException;
-import model.TaskStatus;
 
 import java.io.IOException;
 
 public class TaskHttpHandler extends BaseHttpHandler {
 
 
-    public TaskHttpHandler(TaskManager taskManager, Gson gson) {
-        super(taskManager, gson);
+    public TaskHttpHandler(TaskManager taskManager) {
+        super(taskManager);
 
     }
 
@@ -65,9 +63,7 @@ public class TaskHttpHandler extends BaseHttpHandler {
             String body = readRequestBody(exchange);
             if (body == null || body.trim().isEmpty()) {
 
-                Task defaultTask = new Task("Новая задача", "Описание задачи", TaskStatus.NEW);
-                int newId = taskManager.saveTasks(defaultTask);
-                sendCreated(exchange, gson.toJson(taskManager.getTaskById(newId)));
+                sendBadRequest(exchange, "Тело запроса не может быть пустым");
                 return;
             }
             Task task = gson.fromJson(body, Task.class);

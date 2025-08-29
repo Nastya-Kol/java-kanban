@@ -1,6 +1,5 @@
 package handler;
 
-import com.google.gson.Gson;
 import com.sun.net.httpserver.HttpExchange;
 import manager.TaskManager;
 import model.Subtask;
@@ -11,8 +10,8 @@ import java.io.IOException;
 
 public class SubtaskHttpHandler extends BaseHttpHandler {
 
-    public SubtaskHttpHandler(TaskManager taskManager, Gson gson) {
-        super(taskManager, gson);
+    public SubtaskHttpHandler(TaskManager taskManager) {
+        super(taskManager);
     }
 
     @Override
@@ -61,7 +60,7 @@ public class SubtaskHttpHandler extends BaseHttpHandler {
             String body = readRequestBody(exchange);
             if (body == null || body.trim().isEmpty()) {
 
-                sendBadRequest(exchange, "Для создания подзадачи необходимо указать эпик");
+                sendBadRequest(exchange, "Тело запроса не может быть пустым");
                 return;
             }
             Subtask subtask = gson.fromJson(body, Subtask.class);

@@ -1,20 +1,18 @@
 package handler;
 
-import com.google.gson.Gson;
 import com.sun.net.httpserver.HttpExchange;
 import manager.TaskManager;
 import model.Epic;
 import model.Subtask;
 import exception.ManagerSaveException;
-import model.TaskStatus;
 
 import java.io.IOException;
 import java.util.List;
 
 public class EpicHttpHandler extends BaseHttpHandler {
 
-    public EpicHttpHandler(TaskManager taskManager, Gson gson) {
-        super(taskManager, gson);
+    public EpicHttpHandler(TaskManager taskManager) {
+        super(taskManager);
     }
 
     @Override
@@ -67,9 +65,7 @@ public class EpicHttpHandler extends BaseHttpHandler {
             String body = readRequestBody(exchange);
             if (body == null || body.trim().isEmpty()) {
 
-                Epic defaultEpic = new Epic("New Epic", "Description Epic", TaskStatus.NEW);
-                int newId = taskManager.saveEpics(defaultEpic);
-                sendCreated(exchange, gson.toJson(taskManager.getEpicById(newId)));
+                sendBadRequest(exchange, "Тело запроса не может быть пустым");
                 return;
             }
             Epic epic = gson.fromJson(body, Epic.class);
