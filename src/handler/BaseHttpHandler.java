@@ -17,7 +17,7 @@ import java.time.LocalDateTime;
 public abstract class BaseHttpHandler implements HttpHandler {
 
     protected final TaskManager taskManager;
-    public static Gson gson;
+    protected final Gson gson;
 
     protected BaseHttpHandler(TaskManager taskManager) {
         this.taskManager = taskManager;
